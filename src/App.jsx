@@ -14,23 +14,27 @@ import {
   UnorderedList,
   list,
 } from "@chakra-ui/react";
+import { useForm } from "react-hook-form";
 
 function App() {
   const todos = ["Wash Dishes", "Read Speaking JavaScript", "Take a Break"];
+  // const [newTodo, setNewTodo] = useState("");
 
-  const [newTodo, setNewTodo] = useState('')
-
-  const handleTodoChange = (e) =>{
-    setNewTodo(e.target.value)
-  }
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log(newTodo);
-
-    setNewTodo('')
-  };
   
+    const { register,handleSubmit, formState:{errors}, reset} = useForm();
+
+
+  // const handleTodoChange = (e) => {
+  //   setNewTodo(e.target.value);
+  // };
+
+  const submitNewTodo = (data) => {
+    // e.preventDefault();
+    console.log(data.dailyTodo);
+
+    // setNewTodo("");
+    reset();
+  };
 
   return (
     <Flex bg="gray.200" minH="100vh" py={14}>
@@ -38,17 +42,20 @@ function App() {
         <Heading color="white" bg="gray.400" p={4}>
           TASK ATTACK
         </Heading>
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit(submitNewTodo)}>
           <FormControl>
-            <Input 
+            <Input
               type="text"
               placeholder="Enter your Todo here"
               bg="white"
               border={0}
               borderRadius={0}
               py={6}
-              value={newTodo} onChange={handleTodoChange}
-            ></Input>
+              {...register("dailyTodo", {required: true})}
+            />
+            {errors.dailyTodo && (
+              <Text bg='red.400' color='white'>Sorry this you can not leave this empty</Text>
+            )}
           </FormControl>
           <Button
             type="submit"
