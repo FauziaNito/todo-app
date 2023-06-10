@@ -13,6 +13,14 @@ import {
 } from "@chakra-ui/react";
 import { useForm } from "react-hook-form";
 import axios from "axios";
+import {z} from "zod"
+import {zodResolver} from "@hookform/resolvers/zod"
+
+
+// Defining the schema for the todo object
+const todoSchema  = z.object({
+  dailyTodo: z.string().min(4).nonempty("Todo name is required"),
+})
 
 function App() {
   const [todos, setTodo] = useState([]);
@@ -22,7 +30,7 @@ function App() {
     handleSubmit,
     formState: { errors },
     reset,
-  } = useForm();
+  } = useForm({resolver: zodResolver(todoSchema)});
 
   useEffect(() => {
     fetchTodos();
@@ -40,7 +48,12 @@ function App() {
 
   const createTodo = async (data) => {
     try {
+      // Validating input data against the todoSchema
+      // const validateData = todoSchema.parse(data);
+
+      // API request to create the todo
       const response = await axios.post("http://localhost:3020/todos", data);
+
       const newTodo = response.data;
       setTodo((prevTodos) => [...prevTodos, newTodo]);
       reset();
@@ -68,7 +81,7 @@ function App() {
             />
             {errors.dailyTodo && (
               <Text bg="red.400" color="white">
-                Sorry this you can not leave this empty
+                {errors.dailyTodo.message}
               </Text>
             )}
           </FormControl>
