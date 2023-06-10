@@ -1,6 +1,5 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
-  Box,
   Button,
   Checkbox,
   Container,
@@ -11,29 +10,43 @@ import {
   List,
   ListItem,
   Text,
-  UnorderedList,
-  list,
 } from "@chakra-ui/react";
 import { useForm } from "react-hook-form";
+import axios from "axios";
 
 function App() {
-  const todos = ["Wash Dishes", "Read Speaking JavaScript", "Take a Break"];
-  // const [newTodo, setNewTodo] = useState("");
+  const [todos, setTodo] = useState([]);
 
-  
-    const { register,handleSubmit, formState:{errors}, reset} = useForm();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+  } = useForm();
 
+  useEffect(() => {
+    fetchTodos();
+  }, []);
 
-  // const handleTodoChange = (e) => {
-  //   setNewTodo(e.target.value);
-  // };
+  const fetchTodos = async () => {
+    try {
+      const response = await axios.get("http://localhost:3020/todos");
+      const data = response.data;
+      setTodo(data);
+    } catch (error) {
+      console.log("Error fetching todos:", error);
+    }
+  };
 
-  const submitNewTodo = (data) => {
-    // e.preventDefault();
-    console.log(data.dailyTodo);
-
-    // setNewTodo("");
-    reset();
+  const createTodo = async (data) => {
+    try {
+      const response = await axios.post("http://localhost:3020/todos", data);
+      const newTodo = response.data;
+      setTodo((prevTodos) => [...prevTodos, newTodo]);
+      reset();
+    } catch (error) {
+      console.error("Error creating todo:", error);
+    }
   };
 
   return (
@@ -42,7 +55,7 @@ function App() {
         <Heading color="white" bg="gray.400" p={4}>
           TASK ATTACK
         </Heading>
-        <form onSubmit={handleSubmit(submitNewTodo)}>
+        <form onSubmit={handleSubmit(createTodo)}>
           <FormControl>
             <Input
               type="text"
@@ -51,10 +64,12 @@ function App() {
               border={0}
               borderRadius={0}
               py={6}
-              {...register("dailyTodo", {required: true})}
+              {...register("dailyTodo", { required: true })}
             />
             {errors.dailyTodo && (
-              <Text bg='red.400' color='white'>Sorry this you can not leave this empty</Text>
+              <Text bg="red.400" color="white">
+                Sorry this you can not leave this empty
+              </Text>
             )}
           </FormControl>
           <Button
@@ -70,10 +85,10 @@ function App() {
         </form>
         <List fontSize={20}>
           {todos.map((todo) => (
-            <ListItem bg="white" py={2} px={5} key={todo}>
+            <ListItem bg="white" py={2} px={5} key={todo.id}>
               <Flex gap={4}>
                 <Checkbox borderColor="gray.300" size="lg" />
-                <Text>{todo}</Text>
+                <Text>{todo.dailyTodo}</Text>
               </Flex>
             </ListItem>
           ))}
