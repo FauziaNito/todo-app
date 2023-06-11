@@ -12,9 +12,9 @@ import {
   Text,
 } from "@chakra-ui/react";
 import { useForm } from "react-hook-form";
-import axios from "axios";
 import {z} from "zod"
 import {zodResolver} from "@hookform/resolvers/zod"
+import todoApi from "./todoApi/todoApi";
 
 
 // Defining the schema for the todo object
@@ -38,7 +38,7 @@ function App() {
 
   const fetchTodos = async () => {
     try {
-      const response = await axios.get("http://localhost:3020/todos");
+      const response = await todoApi.get("/todos");
       const data = response.data;
       setTodo(data);
     } catch (error) {
@@ -52,7 +52,7 @@ function App() {
       // const validateData = todoSchema.parse(data);
 
       // API request to create the todo
-      const response = await axios.post("http://localhost:3020/todos", data);
+      const response = await todoApi.post("/todos",data);
 
       const newTodo = response.data;
       setTodo((prevTodos) => [...prevTodos, newTodo]);
